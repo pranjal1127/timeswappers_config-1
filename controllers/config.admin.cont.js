@@ -103,6 +103,7 @@ const transaction = async (req, res) => {
     if (error) sendErrorMail({ error: 'Withdrawal process on Timeswappers not working.' });
     if (!fields.nonce || !fields.walletAddress || !fields.amount)
       return res.json({status : 'error',message :`All fields are required.`});
+console.log('fields',fields);
     let tx;
     try {
       let amountToSend = ethers.utils.parseEther(String(fields.amount));
