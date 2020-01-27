@@ -9,11 +9,11 @@ let ConfigSchema = new mongoose.Schema({
     },
     withdrawalFee: {
         type: Number,
-        // default: 5
+        default: 0.25
     },
     bankWithdrawalFee: {
         type: Number,
-        // default: 2
+        default: 0.25
     },
     EST_ETH: { type: Number },
     powerTokensLocked: {
@@ -36,6 +36,22 @@ let ConfigSchema = new mongoose.Schema({
     },
     eraswapContractAddress: {
         type : String
+    },
+    erscrowWalletAddress: {
+        type: String,
+        default : '0x641b63dabe00de60f401d2db5d1b22eedad915f2'
+    },
+    bannerAdCharge: {
+        type: Number,
+        default : 3000
+    },
+    sidebarAdCharge: {
+        type: Number,
+        default : 2000
+    },
+    homepageAdCharge: {
+        type: Number,
+        default  : 1500
     }
 }, {
     timestamps: true

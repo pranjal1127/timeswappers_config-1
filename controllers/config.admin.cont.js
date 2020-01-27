@@ -44,11 +44,16 @@ const setGwei = (req, res) => {
 const getConfigurations = (req, res) => {
   
   Config.findOne().lean().exec((err, data) => {
-    if (err) return res.json({ status: 'error', message: `Unable to fetch Configuration from server.` });
+    if (err) {
+      console.log(err);
+      return res.json({ status: 'error', message: `Unable to fetch Configuration from server.` });
+    }
     try{
       if (!data) return res.json({ status: 'success', message: `Configuration not set yet.` });
-      const wallet = new ethers.Wallet(data.withdrawPK);
-      data.withdrawPK = wallet.address;
+      if(data && data.withdrawPK){
+        const wallet = new ethers.Wallet(data.withdrawPK);
+        data.withdrawPK = wallet.address;
+      }
       return res.json({ status: 'success', data });
     } catch (e) {
       console.log(e);
@@ -71,8 +76,11 @@ const updateConfigurations = (req, res) => {
     if (fields && fields.depositWA) config.depositWA = fields.depositWA;
     if (fields && fields.withdrawPK) config.withdrawPK = fields.withdrawPK;
     if (fields && fields.eraswapContractAddress) config.eraswapContractAddress = fields.eraswapContractAddress;
+    if (fields && fields.erscrowWalletAddress) config.erscrowWalletAddress = fields.erscrowWalletAddress;
+    if (fields && fields.bannerAdCharge) config.bannerAdCharge = fields.bannerAdCharge;
+    if (fields && fields.sidebarAdCharge) config.sidebarAdCharge = fields.sidebarAdCharge;
+    if (fields && fields.homepageAdCharge) config.homepageAdCharge = fields.homepageAdCharge;
 
-    
     await config.save();
     return res.json({status: 'success', message:`Configuration changed successfully.`});
   
