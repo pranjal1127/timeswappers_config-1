@@ -52,6 +52,18 @@ let ConfigSchema = new mongoose.Schema({
     homepageAdCharge: {
         type: Number,
         default  : 1500
+    },
+    curatorCharge: {
+        type: Number,
+        default : 10000
+    },
+    companyWalletAddress: {
+        type: String,
+        default :'companyWallet'
+    },
+    adsWalletAddress: {
+        type: String,
+        default : 'adsWallet'
     }
 }, {
     timestamps: true
