@@ -20,10 +20,10 @@ let ConfigSchema = new mongoose.Schema({
         type : Boolean,
         default: false
     },
-    powerTokenTransactionCharge: {
-        type: Number,
-        default : 0.25
-    },
+    // powerTokenTransactionCharge: {
+    //     type: Number,
+    //     default : 0.25
+    // },
     gwei: {
         type: String,
         default : '20'
@@ -41,22 +41,22 @@ let ConfigSchema = new mongoose.Schema({
         type: String,
         default : '0x641b63dabe00de60f401d2db5d1b22eedad915f2'
     },
-    bannerAdCharge: {
-        type: Number,
-        default : 3000
-    },
-    sidebarAdCharge: {
-        type: Number,
-        default : 2000
-    },
-    homepageAdCharge: {
-        type: Number,
-        default  : 1500
-    },
-    curatorCharge: {
-        type: Number,
-        default : 10000
-    },
+    // bannerAdCharge: {
+    //     type: Number,
+    //     default : 3000
+    // },
+    // sidebarAdCharge: {
+    //     type: Number,
+    //     default : 2000
+    // },
+    // homepageAdCharge: {
+    //     type: Number,
+    //     default  : 1500
+    // },
+    // curatorCharge: {
+    //     type: Number,
+    //     default : 10000
+    // },
     companyWalletAddress: {
         type: String,
         default :'companyWallet'

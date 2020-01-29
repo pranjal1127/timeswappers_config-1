@@ -71,16 +71,16 @@ const updateConfigurations = (req, res) => {
     if (!config) config = new Config();
     console.log(fields);
     
-    if (fields && fields.powertokenCharge) config.powerTokenTransactionCharge = fields.powertokenCharge;
+    // if (fields && fields.powertokenCharge) config.powerTokenTransactionCharge = fields.powertokenCharge;
     if (fields && fields.gwei) config.gwei = fields.gwei;
     if (fields && fields.depositWA) config.depositWA = fields.depositWA;
     if (fields && fields.withdrawPK) config.withdrawPK = fields.withdrawPK;
     if (fields && fields.eraswapContractAddress) config.eraswapContractAddress = fields.eraswapContractAddress;
     if (fields && fields.erscrowWalletAddress) config.erscrowWalletAddress = fields.erscrowWalletAddress;
-    if (fields && fields.bannerAdCharge) config.bannerAdCharge = fields.bannerAdCharge;
-    if (fields && fields.sidebarAdCharge) config.sidebarAdCharge = fields.sidebarAdCharge;
-    if (fields && fields.homepageAdCharge) config.homepageAdCharge = fields.homepageAdCharge;
-    if (fields && fields.curatorCharge) config.curatorCharge = fields.curatorCharge;
+    // if (fields && fields.bannerAdCharge) config.bannerAdCharge = fields.bannerAdCharge;
+    // if (fields && fields.sidebarAdCharge) config.sidebarAdCharge = fields.sidebarAdCharge;
+    // if (fields && fields.homepageAdCharge) config.homepageAdCharge = fields.homepageAdCharge;
+    // if (fields && fields.curatorCharge) config.curatorCharge = fields.curatorCharge;
     if (fields && fields.adsWalletAddress) config.adsWalletAddress = fields.adsWalletAddress;
     if (fields && fields.companyWalletAddress) config.companyWalletAddress = fields.companyWalletAddress;
     
