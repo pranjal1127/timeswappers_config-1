@@ -2,7 +2,7 @@ const formidable = require('formidable');
 const mongoose = require('mongoose');
 const ethers = require('ethers');
 const Config = require('../models/Config');
-const network = process.env.NODE_ENV != 'production' ? 'rinkeby' : 'homestead';
+const network = process.env.NODE_ENV != 'production' ? 'kovan' : 'homestead';
 
 const setPowerTokenLock = (req, res) => {
   const form = new formidable.IncomingForm();

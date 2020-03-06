@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-
+const cors = require('cors');
 // require('dotenv').config({ path: path.join(__dirname, '.env') });
 require('dotenv').config();
 const mongoose = require('mongoose');
@@ -12,6 +12,8 @@ console.log('process.env.MONGODB',process.env.MONGODB);
 
 mongoose.connect(process.env.MONGODB || 'mongodb://localhost:27017/config', { useNewUrlParser: true, useCreateIndex: true });
 const app = express();
+
+app.use(cors());
 
 app.get('/hello', (req, res) => {
   return res.send('world');
