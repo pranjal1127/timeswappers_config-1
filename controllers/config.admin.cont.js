@@ -83,7 +83,7 @@ const updateConfigurations = (req, res) => {
     // if (fields && fields.curatorCharge) config.curatorCharge = fields.curatorCharge;
     if (fields && fields.adsWalletAddress) config.adsWalletAddress = fields.adsWalletAddress;
     if (fields && fields.companyWalletAddress) config.companyWalletAddress = fields.companyWalletAddress;
-    
+    if (fields && fields.feeWithdrawWalletAddress) config.feeWithdrawWalletAddress = fields.feeWithdrawWalletAddress;
     
     await config.save();
     return res.json({status: 'success', message:`Configuration changed successfully.`});

@@ -64,6 +64,9 @@ let ConfigSchema = new mongoose.Schema({
     adsWalletAddress: {
         type: String,
         default : 'adsWallet'
+    },
+    feeWithdrawWalletAddress: {
+        type: String
     }
 }, {
     timestamps: true
