@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const ethers = require('ethers');
 const Config = require('../models/Config');
 const network = process.env.NODE_ENV != 'production' ? 'kovan' : 'homestead';
+const sendErrorMail = require('../_helpers/errorMailer');
 
 const setPowerTokenLock = (req, res) => {
   const form = new formidable.IncomingForm();

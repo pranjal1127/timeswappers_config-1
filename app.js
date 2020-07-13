@@ -10,7 +10,14 @@ mongoose.set('useFindAndModify', false);
 mongoose.set('useCreateIndex', true);
 console.log('process.env.MONGODB',process.env.MONGODB);
 
-mongoose.connect(process.env.MONGODB || 'mongodb://localhost:27017/config', { useNewUrlParser: true, useCreateIndex: true });
+const options = {
+  useNewUrlParser: true,
+  useCreateIndex: true,
+  replicaSet: 'rs1',
+  poolSize: 10,
+};
+
+mongoose.connect(process.env.MONGODB || 'mongodb://localhost:27017/config', options);
 const app = express();
 
 app.use(cors());
