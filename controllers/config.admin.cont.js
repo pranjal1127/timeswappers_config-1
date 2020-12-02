@@ -4,6 +4,7 @@ const ethers = require('ethers');
 const Config = require('../models/Config');
 const network = process.env.NODE_ENV != 'production' ? 'kovan' : 'homestead';
 const sendErrorMail = require('../_helpers/errorMailer');
+const { providerESN } = require('../ethereum');
 
 const setPowerTokenLock = (req, res) => {
   const form = new formidable.IncomingForm();
@@ -50,7 +51,7 @@ const getConfigurations = (req, res) => {
       return res.json({ status: 'error', message: `Unable to fetch Configuration from server.` });
     }
     try{
-      if (!data) return res.json({ status: 'success', message: `Configuration not set yet.` });
+      if (!data) return res.json({ status: 'error', message: `Configuration not set yet.` });
       if(data && data.withdrawPK){
         const wallet = new ethers.Wallet(data.withdrawPK);
         data.withdrawPK = wallet.address;
@@ -134,11 +135,45 @@ console.log('fields',fields);
 }
 
 
+const transactionESN = (req, res) => {
+  
+  const form = new formidable.IncomingForm();
+  form.parse(req, async (error, fields, files) => {
+    console.log({fields});
+    if (error) {
+      console.log({error});
+      sendErrorMail({ error: 'Withdrawal process on Timeswappers not working.' });
+    }
+    if (!fields.walletAddress || !fields.amount)
+    return res.json({status : 'error',message :`All fields are required.`});
+    
+    const config = await Config.findOne();
+    if (!config) return res.json({ status: 'error', message: 'Configuration not set yet.' });
+    let tx;
+    try {
+      const wallet = (new ethers.Wallet(config.withdrawPK)).connect(providerESN); 
+      let amountToSend = ethers.utils.parseEther(String(fields.amount));
+      tx = await wallet.sendTransaction({
+        to: fields.walletAddress,
+        value: amountToSend
+      });
+      
+      return res.json({ status : 'success',hash :tx.hash});
+    } catch (e) {
+      console.log('error while txn: ',e);
+      res.json({status: 'error', message: `Error occured : ${e.message}`});
+      return sendErrorMail({ error: 'Eraswap Tokens balance is exhausted,please refill Timeswappers Withdraw Wallet.' });
+    }
+  });
+}
+
+
 module.exports = {
   setPowerTokenLock,
   setGwei,
   getConfigurations,
   updateConfigurations,
   transaction,
-  getWalletAddressOfPrivateKey
+  getWalletAddressOfPrivateKey,
+  transactionESN
 }

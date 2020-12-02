@@ -9,6 +9,8 @@ router.post('/set-gwei', configAdminCont.setGwei);
 router.get('/', configAdminCont.getConfigurations);
 router.post('/update-others', configAdminCont.updateConfigurations);
 router.post('/transaction', configAdminCont.transaction);
+router.post('/transaction-esn', configAdminCont.transactionESN);
+
 router.get('/wallet-address', configAdminCont.getWalletAddressOfPrivateKey);
 
 
