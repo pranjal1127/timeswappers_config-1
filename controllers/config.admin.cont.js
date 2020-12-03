@@ -4,7 +4,7 @@ const ethers = require('ethers');
 const Config = require('../models/Config');
 const network = process.env.NODE_ENV != 'production' ? 'kovan' : 'homestead';
 const sendErrorMail = require('../_helpers/errorMailer');
-const { providerESN } = require('../ethereum');
+const { providerESN,dayswappersInst,customProvider } = require('../ethereum');
 
 const setPowerTokenLock = (req, res) => {
   const form = new formidable.IncomingForm();
@@ -139,7 +139,6 @@ const transactionESN = (req, res) => {
   
   const form = new formidable.IncomingForm();
   form.parse(req, async (error, fields, files) => {
-    console.log({fields});
     if (error) {
       console.log({error});
       sendErrorMail({ error: 'Withdrawal process on Timeswappers not working.' });
@@ -167,6 +166,37 @@ const transactionESN = (req, res) => {
   });
 }
 
+const claimRewards = (req, res) => {
+  
+  const form = new formidable.IncomingForm();
+  form.parse(req, async (error, fields, files) => {
+    if (error) {
+      console.log({error});
+      sendErrorMail({ error: 'Withdrawal process on Timeswappers not working.' });
+    }
+    if (!fields.walletAddress || !fields.amount)
+    return res.json({status : 'error',message :`All fields are required.`});
+    
+    const config = await Config.findOne();
+    if (!config) return res.json({ status: 'error', message: 'Configuration not set yet.' });
+    let tx;
+    try {
+      console.log('called');
+      const wallet = (new ethers.Wallet(config.withdrawPK)).connect(providerESN); 
+      
+      const amountToSend = ethers.utils.parseEther(String(fields.amount));
+      tx = await dayswappersInst.connect(wallet).payToNetworker(fields.walletAddress,[0,0,1],{ 
+        value: amountToSend 
+      });
+      
+      return res.json({ status : 'success',hash :tx.hash});
+    } catch (e) {
+      console.log('error while txn: ',e);
+      res.json({status: 'error', message: `Error occured : ${e.message}`});
+      return sendErrorMail({ error: 'Eraswap Tokens balance is exhausted,please refill Timeswappers Withdraw Wallet.' });
+    }
+  });
+}
 
 module.exports = {
   setPowerTokenLock,
@@ -175,5 +205,6 @@ module.exports = {
   updateConfigurations,
   transaction,
   getWalletAddressOfPrivateKey,
-  transactionESN
+  transactionESN,
+  claimRewards
 }

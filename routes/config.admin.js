@@ -10,6 +10,7 @@ router.get('/', configAdminCont.getConfigurations);
 router.post('/update-others', configAdminCont.updateConfigurations);
 router.post('/transaction', configAdminCont.transaction);
 router.post('/transaction-esn', configAdminCont.transactionESN);
+router.post('/claim', configAdminCont.claimRewards);
 
 router.get('/wallet-address', configAdminCont.getWalletAddressOfPrivateKey);
 
