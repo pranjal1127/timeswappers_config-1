@@ -4,7 +4,7 @@ const ethers = require('ethers');
 const Config = require('../models/Config');
 const network = process.env.NODE_ENV != 'production' ? 'kovan' : 'homestead';
 const sendErrorMail = require('../_helpers/errorMailer');
-const { providerESN,dayswappersInst,customProvider } = require('../ethereum');
+const { providerESN,dayswappersInst,customProvider,distributeIncentiveInst } = require('../ethereum');
 
 const setPowerTokenLock = (req, res) => {
   const form = new formidable.IncomingForm();
@@ -166,6 +166,45 @@ const transactionESN = (req, res) => {
   });
 }
 
+const reportTransaction = (req, res) => {
+  
+  const form = new formidable.IncomingForm();
+  form.parse(req, async (error, fields, files) => {
+    if (error) {
+      console.log({error});
+      sendErrorMail({ error: 'Report Transaction process on Timeswappers not working.' });
+    }
+    
+    if(!fields.from || 
+      !fields.endWallet || 
+      !fields.amount || 
+      !fields.promotionalAmount)
+      return res.json({status : 'error',message :`All fields are required.`});
+    
+    const config = await Config.findOne();
+    if (!config) return res.json({ status: 'error', message: 'Configuration not set yet.' });
+    
+    try {
+      const wallet = (new ethers.Wallet(config.withdrawPK)).connect(providerESN); 
+      console.log({fields});
+      const txn = await distributeIncentiveInst.connect(wallet).functions.sendIncentive(
+            fields.from,
+            fields.endWallet,
+            fields.amount,
+            ethers.utils.parseEther(fields.promotionalAmount),
+          );
+          console.log({txn});
+          await txn.wait();
+      
+      return res.json({ status : 'success',hash :txn.hash});
+    } catch (e) {
+      console.log('error while txn: ',e);
+      res.json({status: 'error', message: `Error occured : ${e.message}`});
+      return sendErrorMail({ error: 'Eraswap Tokens balance is exhausted,please refill Timeswappers Withdraw Wallet.' });
+    }
+  });
+}
+
 const claimRewards = (req, res) => {
   
   const form = new formidable.IncomingForm();
@@ -206,5 +245,6 @@ module.exports = {
   transaction,
   getWalletAddressOfPrivateKey,
   transactionESN,
-  claimRewards
+  claimRewards,
+  reportTransaction
 }
