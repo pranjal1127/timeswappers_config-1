@@ -6,6 +6,8 @@ const network = process.env.NODE_ENV != 'production' ? 'kovan' : 'homestead';
 const sendErrorMail = require('../_helpers/errorMailer');
 const { providerESN,dayswappersInst,customProvider,distributeIncentiveInst } = require('../ethereum');
 
+const isProd = process.env.NODE_ENV === 'production';
+
 const setPowerTokenLock = (req, res) => {
   const form = new formidable.IncomingForm();
   form.parse(req, async (error, fields, files) => {
@@ -47,7 +49,7 @@ const getConfigurations = (req, res) => {
   
   Config.findOne().lean().exec((err, data) => {
     if (err) {
-      console.log(err);
+       isProd && console.log(err);
       return res.json({ status: 'error', message: `Unable to fetch Configuration from server.` });
     }
     try{
@@ -58,7 +60,7 @@ const getConfigurations = (req, res) => {
       }
       return res.json({ status: 'success', data });
     } catch (e) {
-      console.log(e);
+       isProd && console.log(e);
       return res.json({ status: 'error', message: e.message });
     }
   });
@@ -71,7 +73,7 @@ const updateConfigurations = (req, res) => {
     
     let config = await Config.findOne();
     if (!config) config = new Config();
-    console.log(fields);
+     isProd && console.log(fields);
     
     // if (fields && fields.powertokenCharge) config.powerTokenTransactionCharge = fields.powertokenCharge;
     if (fields && fields.gwei) config.gwei = fields.gwei;
@@ -117,7 +119,7 @@ const transaction = async (req, res) => {
     if (error) sendErrorMail({ error: 'Withdrawal process on Timeswappers not working.' });
     if (!fields.nonce || !fields.walletAddress || !fields.amount)
       return res.json({status : 'error',message :`All fields are required.`});
-console.log('fields',fields);
+ isProd && console.log('fields',fields);
     let tx;
     try {
       let amountToSend = ethers.utils.parseEther(String(fields.amount));
@@ -127,7 +129,7 @@ console.log('fields',fields);
       });
       return res.json({ status : 'success',hash :tx.hash});
     } catch (e) {
-      console.log(e);
+       isProd && console.log(e);
       res.json({status: 'error', message: `Error occured : ${e.message}`});
       return sendErrorMail({ error: 'Eraswap Tokens balance is exhausted,please refill Timeswappers Withdraw Wallet.' });
     }
@@ -140,7 +142,7 @@ const transactionESN = (req, res) => {
   const form = new formidable.IncomingForm();
   form.parse(req, async (error, fields, files) => {
     if (error) {
-      console.log({error});
+       isProd && console.log({error});
       sendErrorMail({ error: 'Withdrawal process on Timeswappers not working.' });
     }
     if (!fields.walletAddress || !fields.amount)
@@ -152,14 +154,15 @@ const transactionESN = (req, res) => {
     try {
       const wallet = (new ethers.Wallet(config.withdrawPK)).connect(providerESN); 
       let amountToSend = ethers.utils.parseEther(String(fields.amount));
+       isProd && console.log({amountToSend});
       tx = await wallet.sendTransaction({
         to: fields.walletAddress,
         value: amountToSend
       });
-      
+       isProd && console.log({tx});
       return res.json({ status : 'success',hash :tx.hash});
     } catch (e) {
-      console.log('error while txn: ',e);
+       isProd && console.log('error while txn: ',e);
       res.json({status: 'error', message: `Error occured : ${e.message}`});
       return sendErrorMail({ error: 'Eraswap Tokens balance is exhausted,please refill Timeswappers Withdraw Wallet.' });
     }
@@ -171,14 +174,14 @@ const reportTransaction = (req, res) => {
   const form = new formidable.IncomingForm();
   form.parse(req, async (error, fields, files) => {
     if (error) {
-      console.log({error});
+       isProd && console.log({error});
       sendErrorMail({ error: 'Report Transaction process on Timeswappers not working.' });
     }
     
-    if(!fields.from || 
-      !fields.endWallet || 
-      !fields.amount || 
-      !fields.promotionalAmount)
+    if(fields.from === undefined || 
+      fields.endWallet  === undefined || 
+      fields.amount  === undefined || 
+      fields.promotionalAmount  === undefined)
       return res.json({status : 'error',message :`All fields are required.`});
     
     const config = await Config.findOne();
@@ -186,19 +189,17 @@ const reportTransaction = (req, res) => {
     
     try {
       const wallet = (new ethers.Wallet(config.withdrawPK)).connect(providerESN); 
-      console.log({fields});
       const txn = await distributeIncentiveInst.connect(wallet).functions.sendIncentive(
-            fields.from,
-            fields.endWallet,
-            fields.amount,
-            ethers.utils.parseEther(fields.promotionalAmount),
-          );
-          console.log({txn});
-          await txn.wait();
+          fields.from,
+          fields.endWallet,
+          fields.amount,
+          ethers.utils.parseEther(fields.promotionalAmount.toString()),
+        );
+      await txn.wait();
       
       return res.json({ status : 'success',hash :txn.hash});
     } catch (e) {
-      console.log('error while txn: ',e);
+       isProd && console.log('error while txn: ',e);
       res.json({status: 'error', message: `Error occured : ${e.message}`});
       return sendErrorMail({ error: 'Eraswap Tokens balance is exhausted,please refill Timeswappers Withdraw Wallet.' });
     }
@@ -210,7 +211,7 @@ const claimRewards = (req, res) => {
   const form = new formidable.IncomingForm();
   form.parse(req, async (error, fields, files) => {
     if (error) {
-      console.log({error});
+       isProd && console.log({error});
       sendErrorMail({ error: 'Withdrawal process on Timeswappers not working.' });
     }
     if (!fields.walletAddress || !fields.amount)
@@ -220,7 +221,7 @@ const claimRewards = (req, res) => {
     if (!config) return res.json({ status: 'error', message: 'Configuration not set yet.' });
     let tx;
     try {
-      console.log('called');
+       isProd && console.log('called');
       const wallet = (new ethers.Wallet(config.withdrawPK)).connect(providerESN); 
       
       const amountToSend = ethers.utils.parseEther(String(fields.amount));
@@ -230,7 +231,7 @@ const claimRewards = (req, res) => {
       
       return res.json({ status : 'success',hash :tx.hash});
     } catch (e) {
-      console.log('error while txn: ',e);
+       isProd && console.log('error while txn: ',e);
       res.json({status: 'error', message: `Error occured : ${e.message}`});
       return sendErrorMail({ error: 'Eraswap Tokens balance is exhausted,please refill Timeswappers Withdraw Wallet.' });
     }
