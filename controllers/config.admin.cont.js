@@ -188,12 +188,15 @@ const reportTransaction = (req, res) => {
     if (!config) return res.json({ status: 'error', message: 'Configuration not set yet.' });
     
     try {
-      const wallet = (new ethers.Wallet(config.withdrawPK)).connect(providerESN); 
+      const wallet = (new ethers.Wallet(config.withdrawPK)).connect(providerESN);
+      let incentivePercent = parseInt((parseFloat(fields.promotionalAmount) / parseFloat(fields.amount))*100);
+      if(incentivePercent <=0) return res.json({ status : 'success',hash : '0x'});
       const txn = await distributeIncentiveInst.connect(wallet).functions.sendIncentive(
           fields.from,
           fields.endWallet,
-          fields.amount,
-          ethers.utils.parseEther(fields.promotionalAmount.toString()),
+          ethers.utils.parseEther(fields.amount.toString()),
+          incentivePercent - 1,
+          {value : ethers.utils.parseEther(fields.promotionalAmount.toString())}
         );
       await txn.wait();
       
